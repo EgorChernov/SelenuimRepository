@@ -3,10 +3,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
-namespace UnitTestProject1
+namespace SeleniumLectures
 {
     [TestClass]
-    public class UnitTest1
+    public class Lecture1
     {
         IWebDriver driver = new ChromeDriver();
         [TestMethod]

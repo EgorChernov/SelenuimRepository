@@ -4,29 +4,22 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 
-namespace UnitTestProject1
+namespace SeleniumLectures
 {
     [TestClass]
-    public class UnitTest2
+    public class Lecture2
     {
         IWebDriver driver;
-        WebDriverWait wait;
-        public UnitTest2()
+ 
+        [TestMethod]
+        public void TestMethod3()
         {
             driver = new ChromeDriver();
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-        }
-
-        [TestMethod]
-        [Obsolete]
-        public void TestMethod1()
-        {
             driver.Navigate().GoToUrl("http://localhost/litecart/admin");
             //driver.Url = "http://localhost/litecart/admin";
             driver.FindElement(By.Name("username")).SendKeys("admin");
             driver.FindElement(By.Name("password")).SendKeys("admin");
             driver.FindElement(By.Name("login")).Click();
-            wait.Until(ExpectedConditions.TitleIs(title: "My Store"));
             driver.Quit();
             driver = null;
         }
