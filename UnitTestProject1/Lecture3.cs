@@ -74,6 +74,7 @@ namespace SeleniumLectures
         {
             FirefoxOptions firefoxOptions = new FirefoxOptions();
             firefoxOptions.BrowserExecutableLocation = @"C:\Program Files\Firefox Nightly\firefox.exe";
+            firefoxOptions.UseLegacyImplementation = false;
             driver = new FirefoxDriver(firefoxOptions);
             driver.Navigate().GoToUrl("http://localhost/litecart/admin");
             //driver.Url = "http://localhost/litecart/admin";

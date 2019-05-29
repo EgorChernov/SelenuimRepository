@@ -56,10 +56,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="Lecture1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTest2.cs" />
-    <Compile Include="UnitTest3.cs" />
+    <Compile Include="Lecture2.cs" />
+    <Compile Include="Lecture3.cs" />
+    <Compile Include="Lecture4.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
