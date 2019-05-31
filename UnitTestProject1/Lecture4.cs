@@ -21,15 +21,7 @@ namespace SeleniumLectures
             driver.FindElement(By.Name("username")).SendKeys("admin");
             driver.FindElement(By.Name("password")).SendKeys("admin");
             driver.FindElement(By.Name("login")).Click();
-            try
-            {
-            //   Assert.AreNotEqual(driver.FindElements(By.CssSelector("h1")).Count, 0);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-            }
+ 
             ReadOnlyCollection<IWebElement> _parentLinkToClick = driver.FindElements(By.CssSelector("ul#box-apps-menu li#app-"));
             for(int i=0;i<_parentLinkToClick.Count;i++)
             {
