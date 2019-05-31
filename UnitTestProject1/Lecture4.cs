@@ -89,18 +89,13 @@ namespace SeleniumLectures
                 driver.Quit();
                 driver = null;
             }
-
+           
             for (int i = 0; i < _linkToClick.Count; i++)
             {
-                int _stickerNew = _linkToClick[i].FindElements(By.CssSelector("div.sticker.new")).Count;
-                int _stickerSale = _linkToClick[i].FindElements(By.CssSelector("div.sticker.sale")).Count;
-                //понятия не имею почему, но в консоли разработчика пробел заменяется на точки и это работает
                 try
                 {
-                    Assert.IsTrue(
-                        (_stickerNew + _stickerSale == 1) &&
-                        (_stickerNew * _stickerSale == 0)
-                        );
+                    
+                    Assert.AreEqual(_linkToClick[i].FindElements(By.CssSelector("div[class^=sticker]")).Count, 1);     
                 }
                 catch (Exception)
                 {
