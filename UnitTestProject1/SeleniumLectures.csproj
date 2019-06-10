@@ -61,6 +61,7 @@
     <Compile Include="Lecture2.cs" />
     <Compile Include="Lecture3.cs" />
     <Compile Include="Lecture4.cs" />
+    <Compile Include="Lecture5.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
