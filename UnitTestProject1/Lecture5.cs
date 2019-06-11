@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -20,7 +21,7 @@ namespace SeleniumLectures
         {
             driver = new ChromeDriver();
             driver.Manage().Window.Maximize();
-            //driver.Navigate().GoToUrl("http://localhost/litecart/admin");
+            driver.Navigate().GoToUrl("http://localhost/litecart/admin");
             driver.Url = "http://localhost/litecart/admin/?app=countries&doc=countries";
             driver.FindElement(By.Name("username")).SendKeys("admin");
             driver.FindElement(By.Name("password")).SendKeys("admin");
@@ -29,7 +30,7 @@ namespace SeleniumLectures
             string prev = driver.FindElement(By.CssSelector("tr.row td:nth-child(5)")).Text;
             var list = driver.FindElements(By.CssSelector("tr.row td:nth-child(5)"));
             string curr;
-            //bool flag = true; 
+            // bool flag = true;
             for (int i = 1; i < list.Count; i++)
             {
                 curr = list[i].Text;
@@ -46,406 +47,97 @@ namespace SeleniumLectures
                     driver = null;
                 }
             }
+
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                list[i].FindElement(By.CssSelector("td a")).Click();
+                var zonelist = driver.FindElements(By.CssSelector("table.dataTable td:nth-child(3)"));
+                prev = zonelist[0].FindElement(By.CssSelector("option[selected=selected]")).Text;
+
+                for (int j = 1; j < zonelist.Count; j++)
+                {
+                    zonelist = driver.FindElements(By.CssSelector("table.dataTable td:nth-child(3)"));
+                    curr = zonelist[i].FindElement(By.CssSelector("option[selected=selected]")).Text;
+                    int compare = curr.CompareTo(prev);
+                    try
+                    {
+                        Assert.IsTrue(compare >= 0);
+                        prev = curr;
+                        list = driver.FindElements(By.CssSelector("tr.row td:nth-child(5)"));
+                    }
+                    catch (Exception)
+                    {
+                        driver.Quit();
+                        driver = null;
+                    }
+                    zonelist = driver.FindElements(By.CssSelector("table.dataTable td:nth-child(3)"));
+                }
+                driver.Navigate().Back();
+                list = driver.FindElements(By.CssSelector("table.dataTable tr.row"));
+            }
             driver.Quit();
             driver = null;
         }
-        [TestMethod]
-        public void TestMethod10IE()
-        {
-         
-            driver = new InternetExplorerDriver();
-
-            driver.Manage().Window.Maximize();
-            //driver.Navigate().GoToUrl("http://localhost/litecart/admin");
-            driver.Url = "http://localhost/litecart";
-
-                WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 1, 0));
-                var box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-
-                //проверка совпадения названия
-
-                string name = box.FindElement(By.CssSelector("div.name")).Text;
-               // driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).Click();
-                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
-                try
-                {
-
-                    string x = driver.FindElement(By.CssSelector("div[id=box-product] h1.title")).Text;
-                    Assert.AreEqual(name, x);
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                    return;
-                }
-                driver.Navigate().Back();
-
-            //совпадают цены (обычная и аукционная)
-            wait.Until(ExpectedConditions.ElementExists(By.CssSelector("div[id=box-campaigns] li[class^=product]")));
-                box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-                string RegularPrice = driver.FindElement(By.CssSelector("s.regular-price")).Text;
-                string CampaignPrice = driver.FindElement(By.CssSelector("strong.campaign-price")).Text;
-               // box.Click();
-                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
-                try
-                {
-                    Assert.AreEqual(RegularPrice, driver.FindElement(By.CssSelector("div.content s.regular-price")).Text);
-                    Assert.AreEqual(CampaignPrice, driver.FindElement(By.CssSelector("div.content strong.campaign-price")).Text);
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                    return;
-                }
-                driver.Navigate().Back();
-
-
-
-                //обычная цена зачеркнутая и серая
-                box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-                string RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("text-decoration");
-                string textdecor;
-                if (RegularPricetext.IndexOf(' ') > 0)
-                {
-                    textdecor = RegularPricetext.Substring(0, RegularPricetext.IndexOf(' '));
-                }
-                else textdecor = RegularPricetext;
-                RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("color");
-                string color = RegularPricetext.Substring(RegularPricetext.IndexOf('(') + 1, RegularPricetext.IndexOf(')') - RegularPricetext.IndexOf('(') - 1);
-                var c = color.Split(',');
-           //     Assert.AreEqual(c.Length, 4);
-                bool isgrey = c[0].Trim().Equals(c[1].Trim()) && c[1].Trim().Equals(c[2].Trim());
-                isgrey = isgrey && (textdecor.Trim().Equals("line-through"));
-                try
-                {
-                    Assert.IsTrue(isgrey);
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                    return;
-                }
-                // box.Click();
-                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
-                // box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-                RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("text-decoration");
-                if (RegularPricetext.IndexOf(' ') > 0)
-                {
-                    textdecor = RegularPricetext.Substring(0, RegularPricetext.IndexOf(' '));
-                }
-                else textdecor = RegularPricetext;
-                RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("color");
-                color = RegularPricetext.Substring(RegularPricetext.IndexOf('(') + 1, RegularPricetext.IndexOf(')') - RegularPricetext.IndexOf('(') - 1);
-                c = color.Split(',');
-           //     Assert.AreEqual(c.Length, 4);
-                isgrey = c[0].Trim().Equals(c[1].Trim()) && c[1].Trim().Equals(c[2].Trim());
-                isgrey = isgrey && (textdecor.Trim().Equals("line-through"));
-                try
-                {
-                    Assert.IsTrue(isgrey);
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                    return;
-                }
-                driver.Navigate().Back();
-
-                //акционная жирная и красная
-                box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-                RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-weight");
-                string CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-weight");
-                textdecor = CampaignPricetext;
-                CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("color");
-                color = CampaignPricetext.Substring(CampaignPricetext.IndexOf('(') + 1, CampaignPricetext.IndexOf(')') - CampaignPricetext.IndexOf('(') - 1);
-
-                c = color.Split(',');
-       //         Assert.AreEqual(c.Length, 3);
-                isgrey = c[1].Trim().Equals("0") && c[2].Trim().Equals("0");
-                isgrey = isgrey && (textdecor.Trim().CompareTo(RegularPricetext) > 0);
-                try
-                {
-                    Assert.IsTrue(isgrey);
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                }
-                box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-                // box.Click();
-                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
-                RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-weight");
-                CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-weight");
-                textdecor = CampaignPricetext;//.Substring(0, CampaignPricetext.IndexOf(' '));
-                CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("color");
-                color = CampaignPricetext.Substring(CampaignPricetext.IndexOf('(') + 1, CampaignPricetext.IndexOf(')') - CampaignPricetext.IndexOf('(') - 1);
-
-                c = color.Split(',');
-        //        Assert.AreEqual(c.Length, 3);
-                isgrey = c[1].Trim().Equals("0") && c[2].Trim().Equals("0");
-                isgrey = isgrey && (textdecor.Trim().CompareTo(RegularPricetext) > 0);
-                try
-                {
-                    Assert.IsTrue(isgrey);
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                }
-
-                driver.Navigate().Back();
-
-                //акционная цена крупнее, чем обычная
-                box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-                RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-size");
-                CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-size");
-                int temp = RegularPricetext.CompareTo(CampaignPricetext);
-
-                try
-                {
-                    Assert.IsTrue(temp < 0);
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                }
-                box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-                // box.Click();
-                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
-
-                RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-size");
-                CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-size");
-                temp = RegularPricetext.CompareTo(CampaignPricetext);
-
-                try
-                {
-                    Assert.IsTrue(temp < 0);
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                }
-
-                driver.Quit();
-                driver = null;
-                return;
-            }
-        
-        [TestMethod]
-        public void TestMethod10Chrome()
-        {
-           
-             driver = new ChromeDriver();
-            driver.Manage().Window.Maximize();
-            //driver.Navigate().GoToUrl("http://localhost/litecart/admin");
-            driver.Url = "http://localhost/litecart";
-            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 1, 0));
-            var box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-
-     //проверка совпадения названия
-
-            string name = box.FindElement(By.CssSelector("div.name")).Text;
-            driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).Click();
-
-            try
-            {
-               
-                string x = driver.FindElement(By.CssSelector("div[id=box-product] h1.title")).Text;
-                Assert.AreEqual(name, x);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-                return;
-            }
-            driver.Navigate().Back();
-
-            //совпадают цены (обычная и аукционная)
-
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            string RegularPrice = driver.FindElement(By.CssSelector("s.regular-price")).Text;
-            string CampaignPrice = driver.FindElement(By.CssSelector("strong.campaign-price")).Text;
-            box.Click();
-
-            try
-            {
-                Assert.AreEqual(RegularPrice, driver.FindElement(By.CssSelector("div.content s.regular-price")).Text);
-                Assert.AreEqual(CampaignPrice, driver.FindElement(By.CssSelector("div.content strong.campaign-price")).Text);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-                return;
-            }
-           driver.Navigate().Back();
-
-
-
-            //обычная цена зачеркнутая и серая
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            string RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("text-decoration");
-            string textdecor;
-            if (RegularPricetext.IndexOf(' ') > 0)
-            {
-                textdecor = RegularPricetext.Substring(0, RegularPricetext.IndexOf(' '));
-            }
-            else textdecor = RegularPricetext;
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("color");
-            string color = RegularPricetext.Substring(RegularPricetext.IndexOf('(') + 1, RegularPricetext.IndexOf(')') - RegularPricetext.IndexOf('(') - 1);
-            var c = color.Split(',');
-           Assert.AreEqual(c.Length, 4);
-            bool isgrey = c[0].Trim().Equals(c[1].Trim()) && c[1].Trim().Equals(c[2].Trim());
-            isgrey = isgrey && (textdecor.Trim().Equals("line-through"));
-            try
-            {
-                Assert.IsTrue(isgrey);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-                return;
-            }
-            box.Click();
-
-           // box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("text-decoration");
-            if (RegularPricetext.IndexOf(' ') > 0)
-            {
-                textdecor = RegularPricetext.Substring(0, RegularPricetext.IndexOf(' '));
-            }
-            else textdecor = RegularPricetext;
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("color");
-            color = RegularPricetext.Substring(RegularPricetext.IndexOf('(') + 1, RegularPricetext.IndexOf(')') - RegularPricetext.IndexOf('(') - 1);
-            c = color.Split(',');
-           Assert.AreEqual(c.Length, 4);
-            isgrey = c[0].Trim().Equals(c[1].Trim()) && c[1].Trim().Equals(c[2].Trim());
-            isgrey = isgrey && (textdecor.Trim().Equals("line-through"));
-            try
-            {
-                Assert.IsTrue(isgrey);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-                return;
-            }
-            driver.Navigate().Back();
-
-            //акционная жирная и красная
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            string CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-weight");
-            textdecor = CampaignPricetext;
-            CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("color");
-            color = CampaignPricetext.Substring(CampaignPricetext.IndexOf('(') + 1, CampaignPricetext.IndexOf(')') - CampaignPricetext.IndexOf('(') - 1);
-
-            c = color.Split(',');
-           Assert.AreEqual(c.Length, 4);
-            isgrey = c[1].Trim().Equals("0") && c[2].Trim().Equals("0");
-            isgrey = isgrey && (textdecor.Trim().Equals("700"));
-            try
-            {
-                Assert.IsTrue(isgrey);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-            }
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            box.Click();
-
-
-            CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-weight");
-            textdecor = CampaignPricetext;//.Substring(0, CampaignPricetext.IndexOf(' '));
-            CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("color");
-            color = CampaignPricetext.Substring(CampaignPricetext.IndexOf('(') + 1, CampaignPricetext.IndexOf(')') - CampaignPricetext.IndexOf('(') - 1);
-
-            c = color.Split(',');
-           Assert.AreEqual(c.Length, 4);
-            isgrey = c[1].Trim().Equals("0") && c[2].Trim().Equals("0");
-            isgrey = isgrey && (textdecor.Trim().Equals("700"));
-            try
-            {
-                Assert.IsTrue(isgrey);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-            }
-
-            driver.Navigate().Back();
-
-            //акционная цена крупнее, чем обычная
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-size");
-            CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-size");
-            int temp = RegularPricetext.CompareTo(CampaignPricetext);
-
-            try
-            {
-                Assert.IsTrue(temp < 0);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-            }
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            box.Click();
-
-
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-size");
-            CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-size");
-            temp = RegularPricetext.CompareTo(CampaignPricetext);
-
-            try
-            {
-                Assert.IsTrue(temp < 0);
-            }
-            catch (Exception)
-            {
-                driver.Quit();
-                driver = null;
-            }
-
-            driver.Quit();
-            driver = null;
-            return;
-        }
-
 
         [TestMethod]
-        public void TestMethod10Firefox()
+        public void TestMethod10()
         {
+            driver = new ChromeDriver();
+            TestCampaigns(driver);
+            if (driver != null)
+            {
+                driver.Quit();
+                driver = null;
+            }
 
             driver = new FirefoxDriver();
-            driver.Manage().Window.Maximize();
-            //driver.Navigate().GoToUrl("http://localhost/litecart/admin");
-            driver.Url = "http://localhost/litecart";
+            TestCampaigns(driver);
+            if (driver != null)
+            {
+                driver.Quit();
+                driver = null;
+            }
+
+            driver = new InternetExplorerDriver();
+            TestCampaigns(driver);
+            if (driver != null)
+            {
+                driver.Quit();
+                driver = null;
+            }
+
+        }
+
+
+
+        public void TestCampaigns(IWebDriver driver)
+        {
             WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 1, 0));
+            CheckNameEquals(driver);
+            CheckPriceEquals(driver);
+            CheckRegularPrice(driver);
+            CheckCampaignPrice(driver);
+            CompareCampaignWithRegular(driver);
+        }
+
+        void CheckNameEquals(IWebDriver driver)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 1, 0));
+            driver.Manage().Window.Maximize();
+            driver.Url = "http://localhost/litecart";
+
             var box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
 
             //проверка совпадения названия
 
             string name = box.FindElement(By.CssSelector("div.name")).Text;
-            driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).Click();
-
+            if (driver.GetType().Name.Equals("InternetExplorerDriver"))
+                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
+            else
+                driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).Click();
             try
             {
-
                 string x = driver.FindElement(By.CssSelector("div[id=box-product] h1.title")).Text;
                 Assert.AreEqual(name, x);
             }
@@ -456,14 +148,20 @@ namespace SeleniumLectures
                 return;
             }
             driver.Navigate().Back();
+            
+        }
 
-            //совпадают цены (обычная и аукционная)
-
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
+        void CheckPriceEquals(IWebDriver driver)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 1, 0));
+            // var box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
+            wait.Until(ExpectedConditions.TitleContains("Online"));
             string RegularPrice = driver.FindElement(By.CssSelector("s.regular-price")).Text;
             string CampaignPrice = driver.FindElement(By.CssSelector("strong.campaign-price")).Text;
-            box.Click();
-
+            if (driver.GetType().Name.Equals("InternetExplorerDriver"))
+                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
+            else
+                driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).Click();
             try
             {
                 Assert.AreEqual(RegularPrice, driver.FindElement(By.CssSelector("div.content s.regular-price")).Text);
@@ -477,23 +175,20 @@ namespace SeleniumLectures
             }
             driver.Navigate().Back();
 
+        }
 
-
+        void CheckRegularPrice(IWebDriver driver)
+        {
             //обычная цена зачеркнутая и серая
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
+            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 1, 0));
+            wait.Until(ExpectedConditions.TitleContains("Online"));
             string RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("text-decoration");
-            string textdecor;
-            if (RegularPricetext.IndexOf(' ') > 0)
-            {
-                textdecor = RegularPricetext.Substring(0, RegularPricetext.IndexOf(' '));
-            }
-            else textdecor = RegularPricetext;
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("color");
-            string color = RegularPricetext.Substring(RegularPricetext.IndexOf('(') + 1, RegularPricetext.IndexOf(')') - RegularPricetext.IndexOf('(') - 1);
-            var c = color.Split(',');
-            Assert.AreEqual(c.Length, 3);
-            bool isgrey = c[0].Trim().Equals(c[1].Trim()) && c[1].Trim().Equals(c[2].Trim());
-            isgrey = isgrey && (textdecor.Trim().Equals("line-through"));
+
+            string color = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("color");
+            Regex regex = new Regex(@"\d{1,3}");
+            var rgb = regex.Matches(color);
+            bool isgrey = rgb[0].Value.Equals(rgb[1].Value) && rgb[1].Value.Equals(rgb[2].Value);
+            isgrey = isgrey && (RegularPricetext.Contains("line-through"));
             try
             {
                 Assert.IsTrue(isgrey);
@@ -504,21 +199,18 @@ namespace SeleniumLectures
                 driver = null;
                 return;
             }
-            box.Click();
+            if (driver.GetType().Name.Equals("InternetExplorerDriver"))
+                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
+            else
+                driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).Click();
 
-            // box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
+
             RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("text-decoration");
-            if (RegularPricetext.IndexOf(' ') > 0)
-            {
-                textdecor = RegularPricetext.Substring(0, RegularPricetext.IndexOf(' '));
-            }
-            else textdecor = RegularPricetext;
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("color");
-            color = RegularPricetext.Substring(RegularPricetext.IndexOf('(') + 1, RegularPricetext.IndexOf(')') - RegularPricetext.IndexOf('(') - 1);
-            c = color.Split(',');
-            Assert.AreEqual(c.Length, 3);
-            isgrey = c[0].Trim().Equals(c[1].Trim()) && c[1].Trim().Equals(c[2].Trim());
-            isgrey = isgrey && (textdecor.Trim().Equals("line-through"));
+            color = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("color");
+            //Regex regex = new Regex(@"\d{1,3}");
+            rgb = regex.Matches(color);
+            isgrey = rgb[0].Value.Equals(rgb[1].Value) && rgb[1].Value.Equals(rgb[2].Value);
+            isgrey = isgrey && (RegularPricetext.Contains("line-through"));
             try
             {
                 Assert.IsTrue(isgrey);
@@ -530,19 +222,21 @@ namespace SeleniumLectures
                 return;
             }
             driver.Navigate().Back();
+        }
 
+        void CheckCampaignPrice(IWebDriver driver)
+        {
             //акционная жирная и красная
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-weight");
+            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 1, 0));
+            wait.Until(ExpectedConditions.TitleContains("Online"));
             string CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-weight");
-            textdecor = CampaignPricetext;
-            CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("color");
-            color = CampaignPricetext.Substring(CampaignPricetext.IndexOf('(') + 1, CampaignPricetext.IndexOf(')') - CampaignPricetext.IndexOf('(') - 1);
+            string color = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("color");
+            color = color.Substring(color.IndexOf('(') + 1, color.IndexOf(')') - color.IndexOf('(') - 1);
 
-            c = color.Split(',');
-            Assert.AreEqual(c.Length, 3);
-            isgrey = c[1].Trim().Equals("0") && c[2].Trim().Equals("0");
-            isgrey = isgrey && (textdecor.Trim().CompareTo(RegularPricetext) > 0);
+            Regex regex = new Regex(@"\d{1,3}");
+            var rgb = regex.Matches(color);
+            bool isgrey = rgb[1].Value.Equals("0") && rgb[2].Value.Equals("0");
+            isgrey = isgrey && (CampaignPricetext.CompareTo("700") >= 0);
             try
             {
                 Assert.IsTrue(isgrey);
@@ -551,20 +245,19 @@ namespace SeleniumLectures
             {
                 driver.Quit();
                 driver = null;
+                return;
             }
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            box.Click();
 
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-weight");
+
+            if (driver.GetType().Name.Equals("InternetExplorerDriver"))
+                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
+            else
+                driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).Click();
+
             CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-weight");
-            textdecor = CampaignPricetext;//.Substring(0, CampaignPricetext.IndexOf(' '));
-            CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("color");
-            color = CampaignPricetext.Substring(CampaignPricetext.IndexOf('(') + 1, CampaignPricetext.IndexOf(')') - CampaignPricetext.IndexOf('(') - 1);
-
-            c = color.Split(',');
-            Assert.AreEqual(c.Length, 3);
-            isgrey = c[1].Trim().Equals("0") && c[2].Trim().Equals("0");
-            isgrey = isgrey && (textdecor.Trim().CompareTo(RegularPricetext)>0);
+            rgb = regex.Matches(color);
+            isgrey = rgb[1].Value.Equals("0") && rgb[2].Value.Equals("0");
+            isgrey = isgrey && (CampaignPricetext.CompareTo("700") >= 0);
             try
             {
                 Assert.IsTrue(isgrey);
@@ -576,11 +269,17 @@ namespace SeleniumLectures
             }
 
             driver.Navigate().Back();
+        }
+
+        void CompareCampaignWithRegular(IWebDriver driver)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 1, 0));
+            wait.Until(ExpectedConditions.TitleContains("Online"));
 
             //акционная цена крупнее, чем обычная
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-size");
-            CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-size");
+            // box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
+            string RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-size");
+            string CampaignPricetext = driver.FindElement(By.CssSelector("strong.campaign-price")).GetCssValue("font-size");
             int temp = RegularPricetext.CompareTo(CampaignPricetext);
 
             try
@@ -592,8 +291,10 @@ namespace SeleniumLectures
                 driver.Quit();
                 driver = null;
             }
-            box = driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product]"));
-            box.Click();
+            if (driver.GetType().Name.Equals("InternetExplorerDriver"))
+                driver.Navigate().GoToUrl(driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).GetAttribute("href"));
+            else
+                driver.FindElement(By.CssSelector("div[id=box-campaigns] li[class^=product] a.link")).Click();
 
 
             RegularPricetext = driver.FindElement(By.CssSelector("s.regular-price")).GetCssValue("font-size");
@@ -615,5 +316,4 @@ namespace SeleniumLectures
             return;
         }
     }
-
 }
