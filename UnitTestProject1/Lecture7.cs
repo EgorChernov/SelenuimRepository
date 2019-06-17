@@ -58,7 +58,6 @@ namespace SeleniumLectures
             selectElement = new SelectElement(driver.FindElement(By.Name("zone_code")));
             selectElement.SelectByIndex(3);
 
-
             driver.FindElement(By.Name("password")).SendKeys(password);
             driver.FindElement(By.Name("confirmed_password")).SendKeys(password);
 
