@@ -65,6 +65,7 @@
     <Compile Include="Lecture6.cs" />
     <Compile Include="Lecture7.cs" />
     <Compile Include="Lecture9.cs" />
+    <Compile Include="Lecture10.cs" />
     <Compile Include="WebDriver.cs" />
   </ItemGroup>
   <ItemGroup>
