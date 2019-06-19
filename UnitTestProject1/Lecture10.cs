@@ -9,10 +9,12 @@ namespace SeleniumLectures
     public class Lecture10
     {
         IWebDriver driver;
+        Proxy proxy;
         [TestMethod]
         public void TestMethod1()
         {
-            Proxy proxy = new Proxy();
+            proxy = new Proxy();
+            
             proxy.HttpProxy = "localhost:8888";
             proxy.Kind = ProxyKind.Manual;
            
