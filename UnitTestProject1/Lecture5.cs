@@ -27,60 +27,51 @@ namespace SeleniumLectures
             driver.FindElement(By.Name("password")).SendKeys("admin");
             driver.FindElement(By.Name("login")).Click();
 
-            string prev = driver.FindElement(By.CssSelector("tr.row td:nth-child(5)")).Text;
             var list = driver.FindElements(By.CssSelector("tr.row td:nth-child(5)"));
-            string curr;
-            // bool flag = true;
-            for (int i = 1; i < list.Count; i++)
-            {
-                curr = list[i].Text;
-                int compare = curr.CompareTo(prev);
-                try
-                {
-                    Assert.IsTrue(compare >= 0);
-                    prev = curr;
-                    list = driver.FindElements(By.CssSelector("tr.row td:nth-child(5)"));
-                }
-                catch (Exception)
-                {
-                    driver.Quit();
-                    driver = null;
-                }
-            }
 
+            //в countries сортировка по алфавиту
+           // Assert.IsTrue(comparator(driver.FindElements(By.CssSelector("tr.row td:nth-child(5)"))));
 
+            //var list = driver.FindElements(By.CssSelector("tr.row td:nth-child(6)"));
+            list = driver.FindElements(By.CssSelector("tr.row"));
             for (int i = 0; i < list.Count; i++)
             {
-                list[i].FindElement(By.CssSelector("td a")).Click();
-                var zonelist = driver.FindElements(By.CssSelector("table.dataTable td:nth-child(3)"));
-                prev = zonelist[0].FindElement(By.CssSelector("option[selected=selected]")).Text;
+                //количество зон для страны
+                if (list[i].FindElement(By.CssSelector("td:nth-child(6)")).Text.Equals("0"))
+                    continue;
+                
+                //если не 0, то проверяем по алфавиту
 
-                for (int j = 1; j < zonelist.Count; j++)
+                list[i].FindElement(By.CssSelector("td a")).Click();
+                bool isSort = comparator(driver.FindElements(By.CssSelector("table.dataTable td:nth-child(3) input[type=hidden]")));
+
+                if (!isSort)
                 {
-                    zonelist = driver.FindElements(By.CssSelector("table.dataTable td:nth-child(3)"));
-                    curr = zonelist[i].FindElement(By.CssSelector("option[selected=selected]")).Text;
-                    int compare = curr.CompareTo(prev);
-                    try
-                    {
-                        Assert.IsTrue(compare >= 0);
-                        prev = curr;
-                        list = driver.FindElements(By.CssSelector("tr.row td:nth-child(5)"));
-                    }
-                    catch (Exception)
-                    {
-                        driver.Quit();
-                        driver = null;
-                    }
-                    zonelist = driver.FindElements(By.CssSelector("table.dataTable td:nth-child(3)"));
+                    Assert.IsTrue(isSort);
+                    driver.Quit();
+                    driver = null;
+
                 }
                 driver.Navigate().Back();
-                list = driver.FindElements(By.CssSelector("table.dataTable tr.row"));
+                list = driver.FindElements(By.CssSelector("tr.row"));
             }
             driver.Quit();
             driver = null;
         }
 
-        [TestMethod]
+
+    bool comparator(ReadOnlyCollection<IWebElement> list)
+    {
+        for (int i = 0; i < list.Count - 1; i++)
+        {
+            if (list[i + 1].Text.CompareTo(list[i].Text) < 0)
+                return false;
+        }
+        return true;
+    }
+
+
+    [TestMethod]
         public void TestMethod10()
         {
             driver = new ChromeDriver();
@@ -109,6 +100,7 @@ namespace SeleniumLectures
 
         }
 
+        
 
 
         public void TestCampaigns(IWebDriver driver)

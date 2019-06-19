@@ -36,7 +36,7 @@ namespace SeleniumLectures
                 loglist = driver.Manage().Logs.GetLog("browser").Count;
                 if (!curr)
                     break;
-                list = driver.FindElements(By.CssSelector("table.dataTable tr[class^=row] td:nth-child(3)"));
+               
             }
 
             try
