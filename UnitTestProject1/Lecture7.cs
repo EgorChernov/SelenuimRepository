@@ -13,7 +13,7 @@ namespace SeleniumLectures
     {
         IWebDriver driver;
         WebDriverWait wait;
-        string email = "sriaadya.sabeen@99cows.com";
+        string email = "@testmailhost.com";
         string password = "password";
         string path = @"../../../root/testimage.jpg";
         //   TimeSpan defaultTimeSpan;
@@ -21,7 +21,8 @@ namespace SeleniumLectures
         public void TestMethod11()
         {
             //создайте сценарий регистрации пользователя
-            driver = new ChromeDriver();
+            
+
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl("http://localhost/litecart");
 
@@ -45,10 +46,11 @@ namespace SeleniumLectures
             selectElement.SelectByValue("US");
             driver.FindElement(By.Name("phone")).SendKeys("+123456");
 
+
             //вводим email
-
+            email = new Random().Next().ToString() + email;
             driver.FindElement(By.Name("email")).SendKeys(email);
-
+            
             //ввели пароль
             driver.FindElement(By.Name("password")).SendKeys(password);
             driver.FindElement(By.Name("confirmed_password")).SendKeys(password);
